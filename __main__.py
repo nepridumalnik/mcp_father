@@ -1,10 +1,11 @@
 if __name__ == "__main__":
     try:
-        from src import start
+        import sys
+        from .src.cli import MCPFatherCLI
 
-        start()
+        sys.path.append(".")
+        cli = MCPFatherCLI()
+        cli.execute()
     except Exception as e:
-        from sys import stderr
-
-        print(f"Exception raised during execution: {e}", out=stderr)
+        print(f"Failed during execution: {e}", out=sys.stderr)
         exit(-1)

@@ -1,0 +1,12 @@
+repositories:
+  # example-plugin:
+  #   url: "https://github.com/example/example-mcp.git"
+  #   branch: "main"
+  #   namespace: "example"
+  #   mcp:
+  #     command: "uv"
+  #     args:
+  #       - "run"
+  #       - "python"
+  #       - "-m"
+  #       - "example_mcp"
