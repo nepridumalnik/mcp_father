@@ -1,0 +1,40 @@
+# Byte-compiled / optimized / compiled byte code, throwCompileError in recent years
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.venv/
+venv/
+env/
+ENV/
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+library/
+*.egg-info/
+src/
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDEs
+.vscode/
+.idea/
+
+# Windows system files
+Thumbs.db
+desktop.ini
+*.log
+
+# Project specific (if any)
+*.tmp
+*.swp
