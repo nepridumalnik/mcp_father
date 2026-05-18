@@ -7,5 +7,5 @@ if __name__ == "__main__":
         cli = MCPFatherCLI()
         cli.execute()
     except Exception as e:
-        print(f"Failed during execution: {e}", out=sys.stderr)
+        print(f"Failed during execution: {e}", file=sys.stderr)
         exit(-1)
