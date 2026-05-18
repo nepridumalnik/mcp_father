@@ -1,87 +1,120 @@
 # MCP Father Hub
 
-An MCP (Model Context Protocol) hub that allows you to manage multiple MCP servers as plugins.
+MCP-хаб (Model Context Protocol), который позволяет подключать несколько MCP-серверов как плагины.
 
-## Features
+## Возможности
 
-- **Plugin Management**: Register, enable, disable, and sync MCP plugins from Git repositories.
-- **Centralized Configuration**: Manage all plugins through `repositories/list.yml` and `~/.mcp_father/settings.json`.
-- **Built-in Tools**: Includes utility tools like timestamp, hostname, and directory creation.
-- **Dynamic Mounting**: Plugins are automatically mounted as part of the hub.
+- **Управление плагинами**: добавление, включение, отключение и синхронизация MCP-плагинов из Git-репозиториев.
+- **Единая конфигурация**: плагины описываются в `repositories/list.yml`, состояние хранится в `~/.mcp_father/settings.json`.
+- **Встроенные инструменты**: timestamp, hostname и создание директорий.
+- **Динамическое подключение**: включенные плагины монтируются в общий MCP-хаб.
 
-## Installation
+## Установка
 
-1. Clone this repository:
+1. Склонируйте репозиторий:
    ```bash
    git clone https://github.com/your-username/mcp_father.git
    cd mcp_father
    ```
 
-2. Install dependencies:
+2. Установите зависимости:
    ```bash
    pip install -r requirements.txt
    ```
 
-## Usage
+## Использование
 
-Before using the hub commands, initialize the local configuration:
+Перед работой с хабом нужно создать локальные конфиги:
 
 ```bash
 python -m mcp_father init
 ```
 
-### Initialization
+### Инициализация
 
-Initialize the configuration files:
+Создать `repositories/list.yml` и `~/.mcp_father/settings.json`:
 ```bash
 python -m mcp_father init
 ```
 
-### Managing Plugins
+### Управление плагинами
 
-- **List plugins**:
+- **Добавить MCP-сервер из другой репы**:
+  1. Если конфиги еще не созданы, выполните:
+     ```bash
+     python -m mcp_father init
+     ```
+
+  2. Добавьте репозиторий в `repositories/list.yml`:
+     ```yaml
+     repositories:
+       filesystem:
+         url: "https://github.com/modelcontextprotocol/servers.git"
+         branch: "main"
+         namespace: "filesystem"
+         mcp:
+           command: "uv"
+           args: ["run", "python", "-m", "mcp_server_filesystem"]
+     ```
+
+     `filesystem` - локальное имя плагина, `namespace` - префикс при монтировании инструментов, `mcp.command` и `mcp.args` - команда запуска MCP-сервера из этой репы.
+
+  3. Склонируйте/обновите репу и включите плагин:
+     ```bash
+     python -m mcp_father sync filesystem
+     python -m mcp_father enable filesystem
+     ```
+
+  4. Запустите хаб:
+     ```bash
+     python -m mcp_father run
+     ```
+
+- **Показать список плагинов**:
   ```bash
   python -m mcp_father list
   ```
 
-- **Enable a plugin**:
+- **Включить плагин**:
   ```bash
   python -m mcp_father enable example-plugin
   ```
 
-- **Disable a plugin**:
+- **Отключить плагин**:
   ```bash
   python -m mcp_father disable example-plugin
   ```
 
-- **Sync plugins** (clones/updates repos):
+- **Синхронизировать плагины**:
   ```bash
   python -m mcp_father sync
-  # or for a specific plugin
+  # или один конкретный плагин
   python -m mcp_father sync example-plugin
   ```
 
-- **Lock to a commit**:
+- **Зафиксировать плагин на commit**:
   ```bash
   python -m mcp_father lock example-plugin <commit-hash>
   ```
 
-### Running the Hub
+### Запуск хаба
 
-Start the MCP server:
+Запустить MCP-сервер:
 ```bash
 python -m mcp_father run
 ```
 
-### Debug Logging
+### Debug-логи
 
-Enable DEBUG logging with `-d` or `--debug` before or after the command:
+Включить DEBUG-логи можно через `-d` или `--debug` до или после команды:
 ```bash
 python -m mcp_father -d run
 python -m mcp_father run -d
 ```
 
-## Example Configuration
+Логи пишутся в stdout и в `~/.mcp_father/logs/`.
+
+## Пример конфигурации
 
 **repositories/list.yml**
 ```yaml
@@ -107,8 +140,9 @@ repositories:
 }
 ```
 
-## Connecting to Claude/Qwen
-Configure your MCP client (e.ry Claude Desktop) to use the hub:
+## Подключение к Claude/Qwen
+
+Настройте MCP-клиент (например Claude Desktop), чтобы он запускал хаб:
 ```json
 {
   "mcpServers": {
