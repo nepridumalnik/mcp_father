@@ -19,7 +19,6 @@ eggs/
 lib/
 library/
 *.egg-info/
-src/
 
 # Pytest / coverage
 .pytest_cache/
