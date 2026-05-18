@@ -31,12 +31,9 @@ class MCPFatherApp:
         register_builtin_tools(self.mcp)
         
         # Mount plugins
-        try:
-            self.plugin_manager.mount_plugins(self.mcp)
-        except Exception as e:
-            self.logger.error(f"Failed to mount plugins: {e}")
+        self.plugin_manager.mount_plugins(self.mcp)
 
-        print("MCP Father Hub is running. Use an MCP client to connect.")
+        self.logger.info("MCP Father Hub is running. Use an MCP client to connect.")
         self.mcp.run()
 
 def start():

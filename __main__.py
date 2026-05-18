@@ -1,4 +1,5 @@
 import sys
+import logging
 from pathlib import Path
 
 
@@ -18,5 +19,6 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except Exception as e:
+        logging.getLogger("mcp_father").exception("Failed during execution")
         print(f"Failed during execution: {e}", file=sys.stderr)
         raise SystemExit(1)
