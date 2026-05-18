@@ -1,6 +1,5 @@
 import argparse
 import logging
-import sys
 from pathlib import Path
 
 from .config import ConfigManager
@@ -22,49 +21,50 @@ class MCPFatherCLI:
         self.plugin_manager = PluginManager(self.config_manager)
         self.logger = logging.getLogger("mcp_father")
 
-    def execute(self):
+    def execute(self) -> int:
+        args = self._parse_args()
+        self.logger = setup_logging(args.debug)
+        self.logger.debug("CLI arguments parsed: %s", args)
+
+        return self._dispatch(args)
+
+    def _build_parser(self) -> argparse.ArgumentParser:
         parser = argparse.ArgumentParser(prog="mcp-father", description="MCP Father Hub CLI")
-        parser.add_argument("--debug", "-d", action="store_true", help="Enable debug logging")
+        parser.add_argument("--debug", "-d", action="store_true", default=False, help="Enable debug logging")
         debug_parent = argparse.ArgumentParser(add_help=False)
-        debug_parent.add_argument("--debug", "-d", action="store_true", help=argparse.SUPPRESS)
+        debug_parent.add_argument("--debug", "-d", action="store_true", default=argparse.SUPPRESS, help=argparse.SUPPRESS)
         subparsers = parser.add_subparsers(dest="command", help="Commands")
 
-        # run command
         subparsers.add_parser("run", parents=[debug_parent], help="Start the MCP hub")
-
-        # list command
         subparsers.add_parser("list", parents=[debug_parent], help="List all plugins")
 
-        # enable command
         enable_parser = subparsers.add_parser("enable", parents=[debug_parent], help="Enable a plugin")
         enable_parser.add_argument("name", help="Plugin name")
 
-        # disable command
         disable_parser = subparsers.add_parser("disable", parents=[debug_parent], help="Disable a plugin")
         disable_parser.add_argument("name", help="Plugin name")
 
-        # sync command
         sync_parser = subparsers.add_parser("sync", parents=[debug_parent], help="Sync plugins")
         sync_parser.add_argument("name", nargs="?", help="Specific plugin name to sync (optional)")
 
-        # lock command
         lock_parser = subparsers.add_parser("lock", parents=[debug_parent], help="Lock a plugin to a specific commit")
         lock_parser.add_argument("name", help="Plugin name")
         lock_parser.add_argument("commit", help="Commit hash or branch")
 
-        # unlock command
         unlock_parser = subparsers.add_parser("unlock", parents=[debug_parent], help="Unlock a plugin")
         unlock_parser.add_argument("name", help="Plugin name")
 
-        # init command
         subparsers.add_parser("init", parents=[debug_parent], help="Initialize configuration")
+        return parser
 
-        raw_debug = any(arg in ("--debug", "-d") for arg in sys.argv[1:])
+    def _parse_args(self) -> argparse.Namespace:
+        parser = self._build_parser()
         args = parser.parse_args()
-        args.debug = args.debug or raw_debug
-        self.logger = setup_logging(args.debug)
-        self.logger.debug("CLI arguments parsed: %s", args)
+        if not hasattr(args, "debug"):
+            args.debug = False
+        return args
 
+    def _dispatch(self, args: argparse.Namespace) -> int:
         if args.command == "run":
             self._initialize_config()
             app = MCPFatherApp(project_root=self._project_root())
@@ -105,9 +105,14 @@ class MCPFatherCLI:
             self.config_manager.init_configs()
             print("Configuration initialized.")
         else:
+            parser = self._build_parser()
             parser.print_help()
+        return 0
 
     def list_plugins(self):
+        if not self._is_initialized():
+            print("Configuration is not initialized. Run: mcp-father init")
+            return
         self.config_manager.load_repositories()
         self.config_manager.load_settings()
         repos = self.config_manager.load_repositories().repositories
@@ -129,6 +134,12 @@ class MCPFatherCLI:
         self.config_manager.init_configs()
         self.config_manager.load_repositories()
         self.config_manager.load_settings()
+
+    def _is_initialized(self) -> bool:
+        return (
+            self.config_manager.list_yml_path.exists()
+            and self.config_manager.settings_json_path.exists()
+        )
 
 if __name__ == "__main__":
     cli = MCPFatherCLI()

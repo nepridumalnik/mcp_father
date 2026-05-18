@@ -24,6 +24,12 @@ An MCP (Model Context Protocol) hub that allows you to manage multiple MCP serve
 
 ## Usage
 
+Before using the hub commands, initialize the local configuration:
+
+```bash
+python -m mcp_father init
+```
+
 ### Initialization
 
 Initialize the configuration files:
@@ -65,6 +71,14 @@ python -m mcp_father init
 Start the MCP server:
 ```bash
 python -m mcp_father run
+```
+
+### Debug Logging
+
+Enable DEBUG logging with `-d` or `--debug` before or after the command:
+```bash
+python -m mcp_father -d run
+python -m mcp_father run -d
 ```
 
 ## Example Configuration

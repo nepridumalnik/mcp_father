@@ -11,8 +11,7 @@ def main() -> int:
         from src.cli import MCPFatherCLI
 
     cli = MCPFatherCLI()
-    cli.execute()
-    return 0
+    return cli.execute()
 
 
 if __name__ == "__main__":

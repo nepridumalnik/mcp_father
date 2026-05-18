@@ -32,7 +32,7 @@ class ConfigManagerTests(unittest.TestCase):
 
 
 class CLITests(unittest.TestCase):
-    def test_main_file_list_command_runs(self):
+    def test_main_file_list_without_config_prints_init_hint(self):
         project_root = Path(__file__).resolve().parents[1]
 
         with tempfile.TemporaryDirectory() as home_dir:
@@ -47,7 +47,25 @@ class CLITests(unittest.TestCase):
             )
 
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("No plugins configured.", result.stdout)
+        self.assertIn("Configuration is not initialized. Run: mcp-father init", result.stdout)
+
+    def test_debug_flag_works_before_and_after_command(self):
+        project_root = Path(__file__).resolve().parents[1]
+
+        for args in (["-d", "list"], ["list", "-d"]):
+            with self.subTest(args=args), tempfile.TemporaryDirectory() as home_dir:
+                env = self._env_with_home(home_dir)
+                result = subprocess.run(
+                    [sys.executable, "__main__.py", *args],
+                    cwd=project_root,
+                    env=env,
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                )
+
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn("DEBUG", result.stdout)
 
     def test_help_does_not_create_home_config(self):
         project_root = Path(__file__).resolve().parents[1]
